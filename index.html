@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Wedding Gallery</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #ffecd2, #fcb69f);
+            padding: 20px;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 2s ease-in-out;
+        }
+        
+        .gallery {
+            column-count: 3;
+            column-gap: 15px;
+            animation: slideUp 2s ease-in-out;
+        }
+
+        @media (max-width: 1024px) {
+            .gallery {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                column-count: 2;
+            }
+        }
+        
+        .gallery-item {
+            background-color: #fff;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0px 6px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            position: relative;
+            animation: zoomInOut 10s infinite ease-in-out;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.08);
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            object-fit: cover;
+            transition: opacity 0.5s;
+        }
+
+        .gallery-item:hover img {
+            opacity: 0.9;
+        }
+
+        .gallery-item.slide-left {
+            animation: slideLeft 8s infinite ease-in-out;
+        }
+
+        .gallery-item.slide-right {
+            animation: slideRight 8s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes zoomInOut {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes slideLeft {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(-10px);
+            }
+        }
+
+        @keyframes slideRight {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(10px);
+            }
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1em;
+            color: #666;
+            animation: fadeIn 3s ease-in-out;
+        }
+
+        .footer a {
+            color: #ff7e5f;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: #ffb88c;
+        }
+
+        .heart {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(255, 105, 180, 0.8);
+            clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 50% 82%, 18% 100%, 0% 35%);
+            animation: float 10s infinite ease-in-out;
+            opacity: 0.8;
+            z-index: 10;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(calc(100vw - 50%));
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Wedding Ceremony of Jafar <i class="fas fa-heart" style="color: #ff6b6b;"></i> and Shajarat Di <i class="fas fa-heart" style="color: #ff6b6b;"></i></h1>
+    <div class="gallery" id="gallery"></div>
+
+    <div class="footer">
+        <p>Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> by TAB to celebrate love and togetherness. <a href="#"></a></p>
+    </div>
+
+    <script>
+        async function loadImages() {
+            const apiKey = 'AIzaSyAarbHZq71Xnm9l9EabxlO-AwEp6nIrccM';
+            const folderId = '1aADOorsbkrge7gx5UAyyllj2kZVjXvA6';
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id%2Cname%2CmimeType)`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const files = data.files;
+                const gallery = document.getElementById('gallery');
+
+                if (files && files.length > 0) {
+                    // Shuffle the files array
+                    files.sort(() => Math.random() - 0.5);
+
+                    files.forEach((file, index) => {
+                        if (file.mimeType.startsWith('image/')) {
+                            const imageUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
+                            const imgElement = document.createElement('div');
+                            imgElement.classList.add('gallery-item');
+
+                            // Apply different slide effects to some random images
+                            if (index % 3 === 0) {
+                                imgElement.classList.add('slide-left');
+                            } else if (index % 5 === 0) {
+                                imgElement.classList.add('slide-right');
+                            }
+
+                            imgElement.innerHTML = `
+                                <img src="${imageUrl}" alt="Image" onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=${file.id}&sz=w1600-h900';">
+                            `;
+                            gallery.appendChild(imgElement);
+                        }
+                    });
+                } else {
+                    gallery.innerHTML = '<p>No images found in this folder.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching images:', error);
+            }
+        }
+
+        function createHearts() {
+            const numHearts = 30;
+            for (let i = 0; i < numHearts; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heart.style.transform = `scale(${Math.random() * 0.7 + 0.3})`;
+                document.body.appendChild(heart);
+            }
+        }
+
+        loadImages();
+        createHearts();
+    </script>
+</body>
+</html>
